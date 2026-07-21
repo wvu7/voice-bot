@@ -1,6 +1,19 @@
 services:
-- type: web
-  name: discord-voice-bot
-  env: node
-  buildCommand: npm install
-  startCommand: npm start
+  - type: worker
+    name: discord-afk-bot
+    runtime: node
+    plan: free
+
+    buildCommand: npm install
+
+    startCommand: npm start
+
+    envVars:
+      - key: TOKEN
+        sync: MTUyODk0NzM2MzU1MTY0NTY5Ng.GuxzSX.Rz6jai6h05AlKZy5c6Tg-iprQvHfkDv5sbh_pA
+
+      - key: GUILD_ID
+        sync: 728138181492473906
+
+      - key: CHANNEL_ID
+        sync: 1481750182717685873
