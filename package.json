@@ -1,18 +1,19 @@
-{
-  "name": "discord-afk-bot",
-  "version": "1.0.0",
-  "description": "Discord AFK Voice Bot",
-  "main": "index.js",
-  "private": true,
-  "license": "MIT",
-  "engines": {
-    "node": ">=22"
-  },
-  "scripts": {
-    "start": "node index.js"
-  },
-  "dependencies": {
-    "@discordjs/voice": "^0.19.0",
-    "discord.js": "^14.22.1"
-  }
-}
+services:
+  - type: worker
+    name: discord-afk-bot
+    runtime: node
+    plan: free
+
+    buildCommand: npm install
+
+    startCommand: npm start
+
+    envVars:
+      - key: TOKEN
+        sync: MTUyODk0NzM2MzU1MTY0NTY5Ng.GuxzSX.Rz6jai6h05AlKZy5c6Tg-iprQvHfkDv5sbh_pA
+
+      - key: GUILD_ID
+        sync: 728138181492473906
+
+      - key: CHANNEL_ID
+        sync: 1481750182717685873
