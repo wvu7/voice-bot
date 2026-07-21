@@ -22,7 +22,7 @@ const CHANNEL_ID = process.env.CHANNEL_ID;
 
 if (!TOKEN || !GUILD_ID || !CHANNEL_ID) {
     console.error("❌ Missing required environment variables.");
-    console.error("TOKEN, GUILD_ID and CHANNEL_ID are required.");
+    console.error("Required: TOKEN, GUILD_ID, CHANNEL_ID");
     process.exit(1);
 }
 
@@ -44,20 +44,19 @@ let reconnectTimeout = null;
 // =========================================
 
 async function connectVoice() {
-
     try {
 
         const guild = await client.guilds.fetch(GUILD_ID).catch(() => null);
 
         if (!guild) {
-            console.error("❌ GUILD_ID is invalid or the bot is not inside this server.");
+            console.error("❌ Invalid GUILD_ID or bot is not in the server.");
             return;
         }
 
         const channel = await guild.channels.fetch(CHANNEL_ID).catch(() => null);
 
         if (!channel) {
-            console.error("❌ CHANNEL_ID does not exist.");
+            console.error("❌ Invalid CHANNEL_ID.");
             return;
         }
 
@@ -69,28 +68,21 @@ async function connectVoice() {
         const oldConnection = getVoiceConnection(guild.id);
 
         if (oldConnection) {
-            try {
-                oldConnection.destroy();
-            } catch {}
+            oldConnection.destroy();
         }
 
-        console.log("🔊 Connecting to voice channel...");
+        console.log(`🔊 Joining ${channel.name}...`);
 
         const connection = joinVoiceChannel({
-
             channelId: channel.id,
             guildId: guild.id,
             adapterCreator: guild.voiceAdapterCreator,
-
             selfMute: true,
             selfDeaf: true
-
         });
 
         connection.on("error", (err) => {
-
-            console.error("Voice Connection Error:", err.message);
-
+            console.error("Voice Error:", err);
         });
 
         connection.on(VoiceConnectionStatus.Disconnected, async () => {
@@ -100,16 +92,13 @@ async function connectVoice() {
             try {
 
                 await Promise.race([
-
                     entersState(connection, VoiceConnectionStatus.Signalling, 5000),
-
                     entersState(connection, VoiceConnectionStatus.Connecting, 5000)
-
                 ]);
 
             } catch {
 
-                console.log("♻️ Reconnecting...");
+                console.log("♻️ Trying to reconnect...");
 
                 connection.destroy();
 
@@ -129,18 +118,15 @@ async function connectVoice() {
 
         await entersState(connection, VoiceConnectionStatus.Ready, 15000);
 
-        console.log(`✅ Connected to: ${channel.name}`);
+        console.log(`✅ Connected to ${channel.name}`);
 
-    }
-
-    catch (err) {
+    } catch (err) {
 
         console.error("Connect Error:", err);
 
         scheduleReconnect();
 
     }
-
 }
 
 // =========================================
@@ -196,27 +182,34 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
 // =========================================
 
 process.on("unhandledRejection", (err) => {
-
     console.error("Unhandled Rejection:", err);
-
 });
 
 process.on("uncaughtException", (err) => {
-
     console.error("Uncaught Exception:", err);
-
 });
 
 client.on("error", (err) => {
-
     console.error("Client Error:", err);
-
 });
 
 // =========================================
+// Debug (Temporary)
+// =========================================
 
-client.login(TOKEN).catch(err => {
+console.log("========== ENV ==========");
+console.log("TOKEN exists :", !!TOKEN);
+console.log("TOKEN length :", TOKEN.length);
+console.log("TOKEN start  :", TOKEN.substring(0, 8));
+console.log("TOKEN end    :", TOKEN.substring(TOKEN.length - 5));
+console.log("GUILD_ID     :", GUILD_ID);
+console.log("CHANNEL_ID   :", CHANNEL_ID);
+console.log("=========================");
 
+// =========================================
+// Login
+// =========================================
+
+client.login(TOKEN).catch((err) => {
     console.error("Login Failed:", err);
-
 });
